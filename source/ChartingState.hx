@@ -170,6 +170,7 @@ class ChartingState extends MusicBeatState
 
 		if (PlayState.SONG != null)
 		{
+		    #if (sys && !mobile)
 			if (PlayState.isSM)
 				_song = Song.conversionChecks(Song.loadFromJsonRAW(File.getContent(PlayState.pathToSm + "/converted.json")));
 			else
@@ -184,6 +185,17 @@ class ChartingState extends MusicBeatState
 
 				_song = Song.conversionChecks(Song.loadFromJson(poop, PlayState.SONG.song));
 			}
+			#else
+			var songFormat = StringTools.replace(PlayState.SONG.song, " ", "-");
+			switch (songFormat) {
+				case 'Dad-Battle': songFormat = 'Dadbattle';
+				case 'Philly-Nice': songFormat = 'Philly';
+			}
+
+			var poop:String = Highscore.formatSong(songFormat, PlayState.storyDifficulty);
+
+			_song = Song.conversionChecks(Song.loadFromJson(poop, PlayState.SONG.song));			
+			#end
 		}
 		else
 		{
@@ -1457,7 +1469,7 @@ class ChartingState extends MusicBeatState
 			FlxG.sound.music.stop();
 			// vocals.stop();
 		}
-		#if sys
+		#if (sys && !mobile)
 		if (PlayState.isSM)
 		{
 			trace("Loading " + PlayState.pathToSm + "/" + PlayState.sm.header.MUSIC);
@@ -1472,6 +1484,7 @@ class ChartingState extends MusicBeatState
 		FlxG.sound.playMusic(Paths.inst(daSong), 0.6);
 		#end
 
+        #if (sys && !mobile)
 		if (PlayState.isSM)
 			_song = Song.conversionChecks(Song.loadFromJsonRAW(File.getContent(PlayState.pathToSm + "/converted.json")));
 		else
@@ -1486,9 +1499,20 @@ class ChartingState extends MusicBeatState
 
 			_song = Song.conversionChecks(Song.loadFromJson(poop, PlayState.SONG.song));
 		}
+		#else
+		var songFormat = StringTools.replace(PlayState.SONG.song, " ", "-");
+		switch (songFormat) {
+			case 'Dad-Battle': songFormat = 'Dadbattle';
+			case 'Philly-Nice': songFormat = 'Philly';
+		}
+
+		var poop:String = Highscore.formatSong(songFormat, PlayState.storyDifficulty);
+
+		_song = Song.conversionChecks(Song.loadFromJson(poop, PlayState.SONG.song));		
+		#end
 
 		// WONT WORK FOR TUTORIAL OR TEST SONG!!! REDO LATER
-		#if sys
+		#if (sys && !mobile)
 		if (PlayState.isSM)
 			vocals = null;
 		else

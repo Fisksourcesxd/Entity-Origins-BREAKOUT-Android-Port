@@ -1,7 +1,5 @@
 package;
 
-import GameJolt.GameJoltLogin;
-import GameJolt.GameJoltAPI;
 #if sys
 import smTools.SMFile;
 #end
@@ -25,7 +23,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import io.newgrounds.NG;
+
 import lime.app.Application;
 import openfl.Assets;
 
@@ -55,15 +53,24 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
+		#if android
+		FlxG.android.preventDefaultKeys = [BACK];
+		#end
+
 		@:privateAccess
 		{
 			trace("Loaded " + openfl.Assets.getLibrary("default").assetsLoaded + " assets (DEFAULT)");
-		}
+		}	
 
-		GameJoltAPI.connect();
-		GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
+		FlxG.save.bind('funkin', 'ninjamuffin99');
 
-		curWacky = FlxG.random.getObject(getIntroTextShit());
+		PlayerSettings.init();
+
+		KadeEngineData.initSave();
+				
+		Highscore.load();
+
+		curWacky = FlxG.random.getObject(getIntroTextShit());		
 
 		trace('hello');
 
@@ -242,14 +249,6 @@ class TitleState extends MusicBeatState
 
 		if (pressedEnter && !transitioning && skippedIntro)
 		{
-			#if !switch
-			NGio.unlockMedal(60960);
-
-			// If it's Friday according to da clock
-			if (Date.now().getDay() == 5)
-				NGio.unlockMedal(61034);
-			#end
-
 			if (FlxG.save.data.flashing)
 				titleText.animation.play('press');
 
@@ -264,8 +263,8 @@ class TitleState extends MusicBeatState
 
 			new FlxTimer().start(2, function(tmr:FlxTimer)
 			{
-				FlxG.switchState(new GameJoltLogin());
-				//FlxG.switchState(new MainMenuState()); // fail but we go anyway
+				//FlxG.switchState(new GameJoltLogin()); why?????
+				FlxG.switchState(new MainMenuState()); // fail but we go anyway
 				clean();
 			});
 			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);

@@ -7,7 +7,7 @@ import lime.app.Application;
 import openfl.utils.Future;
 import openfl.media.Sound;
 import flixel.system.FlxSound;
-#if sys
+#if (sys && !mobile)
 import smTools.SMFile;
 import sys.FileSystem;
 import sys.io.File;
@@ -88,6 +88,7 @@ class FreeplayState extends MusicBeatState
 		{
 			var data:Array<String> = initSonglist[i].split(':');
 			var meta = new SongMetadata(data[0], Std.parseInt(data[2]), data[1]);
+			songs.push(meta);			
 			var format = StringTools.replace(meta.songName, " ", "-");
 			switch (format) {
 				case 'Dad-Battle': format = 'Dadbattle';
@@ -96,40 +97,19 @@ class FreeplayState extends MusicBeatState
 
 			var diffs = [];
 			var diffsThatExist = [];
-
-
-			#if sys
-			if (FileSystem.exists('assets/data/${format}/${format}-hard.json'))
-				diffsThatExist.push("Hard");
-			if (FileSystem.exists('assets/data/${format}/${format}-easy.json'))
-				diffsThatExist.push("Easy");
-			if (FileSystem.exists('assets/data/${format}/${format}.json'))
-				diffsThatExist.push("Normal");
-
-			if (diffsThatExist.length == 0)
-			{
-				Application.current.window.alert("No difficulties found for chart, skipping.",meta.songName + " Chart");
-				continue;
-			}
-			#else
-			diffsThatExist = ["Easy","Normal","Hard"];
-			#end
+			
+			diffsThatExist = ["Easy","Normal","Hard"];			
+			
 			if (diffsThatExist.contains("Easy"))
 				FreeplayState.loadDiff(0,format,meta.songName,diffs);
 			if (diffsThatExist.contains("Normal"))
 				FreeplayState.loadDiff(1,format,meta.songName,diffs);
 			if (diffsThatExist.contains("Hard"))
 				FreeplayState.loadDiff(2,format,meta.songName,diffs);
-
-			meta.diffs = diffsThatExist;
-
-			if (diffsThatExist.length != 3)
-				trace("I ONLY FOUND " + diffsThatExist);
-
+				
+			meta.diffs = diffsThatExist;			
 			FreeplayState.songData.set(meta.songName,diffs);
 			trace('loaded diffs for ' + meta.songName);
-			songs.push(meta);
-
 		}
 
 		//trace("\n" + diffList);
@@ -222,6 +202,10 @@ class FreeplayState extends MusicBeatState
 
 		camZoom = FlxTween.tween(this, {}, 0);
 
+		#if mobileC
+		addVirtualPad(FULL, A_B_X);
+		#end		
+
 		super.create();
 	}
 
@@ -261,8 +245,8 @@ class FreeplayState extends MusicBeatState
 		scoreText.text = "PERSONAL BEST:" + lerpScore;
 		comboText.text = combo + '\n';
 
-		var upP = FlxG.keys.justPressed.UP;
-		var downP = FlxG.keys.justPressed.DOWN;
+		var upP = controls.UP_P;
+		var downP = controls.DOWN_P;
 
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 
@@ -302,14 +286,14 @@ class FreeplayState extends MusicBeatState
 		//if (FlxG.keys.justPressed.SPACE && !openedPreview)
 			//openSubState(new DiffOverview());
 
-		if (FlxG.keys.pressed.SHIFT)
+		if (FlxG.keys.pressed.SHIFT || _virtualpad.buttonX.justPressed)
 		{
-			if (FlxG.keys.justPressed.LEFT)
+			if (controls.LEFT_P)
 			{
 				rate -= 0.05;
 				diffCalcText.text = 'RATING: ${DiffCalc.CalculateDiff(songData.get(songs[curSelected].songName)[curDifficulty])}';
 			}
-			if (FlxG.keys.justPressed.RIGHT)
+			if (controls.RIGHT_P)
 			{
 				rate += 0.05;
 				diffCalcText.text = 'RATING: ${DiffCalc.CalculateDiff(songData.get(songs[curSelected].songName)[curDifficulty])}';
@@ -383,7 +367,7 @@ class FreeplayState extends MusicBeatState
 			PlayState.storyDifficulty = curDifficulty;
 			PlayState.storyWeek = songs[curSelected].week;
 			trace('CUR WEEK' + PlayState.storyWeek);
-			#if sys
+			#if (sys && !mobile)
 			if (songs[curSelected].songCharacter == "sm")
 				{
 					PlayState.isSM = true;
@@ -557,7 +541,7 @@ class SongMetadata
 {
 	public var songName:String = "";
 	public var week:Int = 0;
-	#if sys
+	#if (sys && !mobile)
 	public var sm:SMFile;
 	public var path:String;
 	#end
@@ -565,7 +549,7 @@ class SongMetadata
 
 	public var diffs = [];
 
-	#if sys
+	#if (sys && !mobile)
 	public function new(song:String, week:Int, songCharacter:String, ?sm:SMFile = null, ?path:String = "")
 	{
 		this.songName = song;

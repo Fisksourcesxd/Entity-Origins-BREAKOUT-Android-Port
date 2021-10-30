@@ -13,10 +13,8 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import io.newgrounds.NG;
+
 import lime.app.Application;
-import GameJolt.GameJoltLogin;
-import GameJolt.GameJoltAPI;
 
 #if windows
 import Discord.DiscordClient;
@@ -119,6 +117,11 @@ class MainMenuState extends MusicBeatState
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
+		var creditTxt:FlxText = new FlxText(5, 5, ("Port By M.A. JIGSAW"), 20);
+		creditTxt.scrollFactor.set();
+		creditTxt.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(creditTxt);
+
 		// NG.core.calls.event.logEvent('swag').send();
 
 
@@ -129,9 +132,13 @@ class MainMenuState extends MusicBeatState
 
 		changeItem();
 
+		#if mobileC//to make the cutscene to look good
+	    addVirtualPad(UP_DOWN, A_B);
+		#end
+
 		var doof = null;
 
-		canEnter = true;
+		canEnter = true;		
 
 		if (throwCut)
 		{
@@ -150,7 +157,6 @@ class MainMenuState extends MusicBeatState
 	function cutEnd():Void
 	{
 		canEnter = true;
-		GameJoltAPI.getTrophy(147808);
 		FlxG.sound.playMusic(Paths.music('freakyMenu'));
 	}
 
@@ -185,13 +191,13 @@ class MainMenuState extends MusicBeatState
 				}
 			}
 
-			if (FlxG.keys.justPressed.UP)
+			if (controls.UP_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeItem(-1);
 			}
 
-			if (FlxG.keys.justPressed.DOWN)
+			if (controls.DOWN_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeItem(1);
@@ -199,8 +205,7 @@ class MainMenuState extends MusicBeatState
 
 			if (controls.BACK)
 			{
-				FlxG.switchState(new GameJoltLogin());
-				//FlxG.switchState(new TitleState());
+				FlxG.switchState(new TitleState());
 			}
 
 			if (controls.ACCEPT && canEnter)
