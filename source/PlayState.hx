@@ -901,6 +901,14 @@ class PlayState extends MusicBeatState
 				case 2:
 					var set:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[1], week6Bullshit));
 					set.scrollFactor.set();
+					
+					var creditTxt:FlxText = new FlxText(4,healthBarBG.y + 20,0,("opt by fisk skr"), 24);
+        creditTxt.scrollFactor.set();
+        creditTxt.setFormat("VCR OSD Mono", 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+        creditTxt.borderColor = FlxColor.BLACK;
+        creditTxt.borderSize = 3;
+        creditTxt.borderStyle = FlxTextBorderStyle.OUTLINE;
+        add(creditTxt);
 
 					if (SONG.noteStyle == 'pixel')
 						set.setGraphicSize(Std.int(set.width * daPixelZoom));
